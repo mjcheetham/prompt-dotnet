@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <RepoPath>$(MSBuildThisFileDirectory)</RepoPath>
+    <RepoSrcPath>$(RepoPath)src\</RepoSrcPath>
+    <RepoOutPath>$(RepoPath)out\</RepoOutPath>
+    <ProjectOutPath>$(RepoOutPath)$(MSBuildProjectName)\</ProjectOutPath>
+    <BaseOutputPath>$(ProjectOutPath)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(ProjectOutPath)obj\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+</Project>
