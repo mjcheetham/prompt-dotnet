@@ -20,7 +20,7 @@ namespace Mjcheetham.PromptToolkit
 
         private T Ask<T>(string question, T? defaultValue, IAnswerHandler<T> handler) where T : struct
         {
-            IConsoleCursor resultCursor;
+            //IConsoleCursor resultCursor;
 
             using (_console.SetStyle(ConsoleStyle.Bold))
             {
@@ -30,7 +30,7 @@ namespace Mjcheetham.PromptToolkit
                 }
 
                 _console.Write("{0} ", question);
-                resultCursor = _console.SaveCursor();
+                // resultCursor = _console.SaveCursor();
             }
 
             if (defaultValue.HasValue)
@@ -42,7 +42,7 @@ namespace Mjcheetham.PromptToolkit
                 }
             }
 
-            IConsoleCursor promptCursor = _console.SaveCursor();
+            // IConsoleCursor promptCursor = _console.SaveCursor();
 
             T answer;
             while (true)
@@ -60,10 +60,10 @@ namespace Mjcheetham.PromptToolkit
                     break;
                 }
 
-                promptCursor.Reset(clear: true);
+                // promptCursor.Reset(clear: true);
             }
 
-            resultCursor.Reset(clear: true);
+            // resultCursor.Reset(clear: true);
 
             using (_console.SetColor(ConsoleColor.Cyan))
             {
@@ -75,7 +75,7 @@ namespace Mjcheetham.PromptToolkit
 
         private T Ask<T>(string question, T defaultValue, IAnswerHandler<T> handler) where T : class
         {
-            IConsoleCursor resultCursor;
+            // IConsoleCursor resultCursor;
 
             using (_console.SetStyle(ConsoleStyle.Bold))
             {
@@ -85,7 +85,7 @@ namespace Mjcheetham.PromptToolkit
                 }
 
                 _console.Write("{0} ", question);
-                resultCursor = _console.SaveCursor();
+                // resultCursor = _console.SaveCursor();
             }
 
             if (!(defaultValue is null))
@@ -97,7 +97,7 @@ namespace Mjcheetham.PromptToolkit
                 }
             }
 
-            IConsoleCursor promptCursor = _console.SaveCursor();
+            // IConsoleCursor promptCursor = _console.SaveCursor();
 
             T answer;
             while (true)
@@ -109,10 +109,10 @@ namespace Mjcheetham.PromptToolkit
                     break;
                 }
 
-                promptCursor.Reset(clear: true);
+                // promptCursor.Reset(clear: true);
             }
 
-            resultCursor.Reset(clear: true);
+            // resultCursor.Reset(clear: true);
 
             using (_console.SetColor(ConsoleColor.Cyan))
             {
@@ -130,7 +130,7 @@ namespace Mjcheetham.PromptToolkit
 
         public T AskOption<T>(string question, T[] options)
         {
-            IConsoleCursor resultCursor;
+            // IConsoleCursor resultCursor;
 
             using (_console.SetStyle(ConsoleStyle.Bold))
             {
@@ -140,7 +140,7 @@ namespace Mjcheetham.PromptToolkit
                 }
 
                 _console.Write("{0} ", question);
-                resultCursor = _console.SaveCursor();
+                // resultCursor = _console.SaveCursor();
             }
 
             using (_console.SetColor(ConsoleColor.Gray))
@@ -154,7 +154,7 @@ namespace Mjcheetham.PromptToolkit
                 _console.WriteLine("   {0}", option.ToString());
             }
 
-            IConsoleCursor promptCursor = _console.SaveCursor();
+            // IConsoleCursor promptCursor = _console.SaveCursor();
             int index = -1;
 
             void UpdateIndex(int newIndex)
@@ -176,12 +176,12 @@ namespace Mjcheetham.PromptToolkit
                 using (_console.SetColor(ConsoleColor.Green))
                 using (_console.SetStyle(ConsoleStyle.Bold))
                 {
-                    _console.Write('>');
+                    _console.Write("> {0}", options[newIndex]);
                 }
 
                 index = newIndex;
 
-                promptCursor.Reset();
+                // promptCursor.Reset();
             }
 
             UpdateIndex(0);
@@ -206,7 +206,7 @@ namespace Mjcheetham.PromptToolkit
                 }
             }
 
-            resultCursor.Reset(clear: true);
+            // resultCursor.Reset(clear: true);
 
             using (_console.SetColor(ConsoleColor.Cyan))
             {
