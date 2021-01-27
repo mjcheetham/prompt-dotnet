@@ -11,9 +11,33 @@ namespace Mjcheetham.PromptToolkit
             PlatformUtils.EnsureNotMono();
         }
 
-        public int CursorLeft => Console.CursorLeft;
+        public (int left, int top) Cursor
+        {
+            get => (Console.CursorLeft, Console.CursorTop);
+            set
+            {
+                Console.CursorLeft = value.left;
+                Console.CursorTop = value.top;
+            }
+        }
 
-        public int CursorTop => Console.CursorTop;
+        public int CursorLeft
+        {
+            get => Console.CursorLeft;
+            set => Console.CursorLeft = value;
+        }
+
+        public int CursorTop
+        {
+            get => Console.CursorTop;
+            set => Console.CursorTop = value;
+        }
+
+        public Cursor GetCursor() => new(CursorLeft, CursorTop);
+
+        public void SetCursor(int left, int top) => Console.SetCursorPosition(left, top);
+
+        public void SetCursor(Cursor cursor) => SetCursor(cursor.Left, cursor.Top);
 
         public void ResetColor() => Console.ResetColor();
 
@@ -29,17 +53,65 @@ namespace Mjcheetham.PromptToolkit
 
         public string ReadLine() => Console.ReadLine();
 
-        public IConsoleCursor SaveCursor()
+        public void MoveCursorUp(int num = 1)
         {
-            return new SystemConsoleCursorCookie(Console.CursorLeft, Console.CursorTop);
+            Console.SetCursorPosition(CursorLeft, Math.Max(0, CursorTop - num));
         }
 
-        public void SetCursor(int left, int top)
+        public void MoveCursorDown(int num = 1)
         {
-            Console.SetCursorPosition(left, top);
+            Console.SetCursorPosition(CursorLeft, Math.Min(Console.WindowHeight, CursorTop + num));
         }
 
-        public IConsoleSnapshot SetColor(ConsoleColor? foregroundColor, ConsoleColor? backgroundColor)
+        public void MoveCursorLeft(int num = 1)
+        {
+            Console.SetCursorPosition(Math.Max(0, CursorLeft - num), CursorTop);
+        }
+
+        public void MoveCursorRight(int num = 1)
+        {
+            Console.SetCursorPosition(Math.Min(Console.WindowWidth, CursorLeft + num), CursorTop);
+        }
+
+        public void EraseRight(int num = -1)
+        {
+            var c = GetCursor();
+
+            int len = num < 0 ? Console.WindowWidth - c.Left : Math.Min(num, Console.WindowWidth - c.Left);
+
+            Write(new string(' ', len));
+
+            SetCursor(c);
+        }
+
+        public void EraseLeft(int num = -1)
+        {
+            var c = GetCursor();
+
+            int len = num < 0 ? c.Left : Math.Max(num, c.Left);
+
+            SetCursor(c.Left - len, c.Top);
+            Write(new string(' ', len));
+
+            SetCursor(c);
+        }
+
+        public void EraseLine()
+        {
+            var c = GetCursor();
+
+            SetCursor(0, c.Top);
+            Write(new string(' ', Console.WindowWidth));
+
+            SetCursor(c);
+        }
+
+        public void EraseTo(Cursor cursor)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDisposable SetColor(ConsoleColor? foregroundColor, ConsoleColor? backgroundColor)
         {
             ConsoleColor? fg = null;
             ConsoleColor? bg = null;
@@ -59,7 +131,7 @@ namespace Mjcheetham.PromptToolkit
             return new SystemConsoleColorCookie(fg, bg);
         }
 
-        public IConsoleSnapshot SetStyle(ConsoleStyle style)
+        public IDisposable SetStyle(ConsoleStyle style)
         {
             if (PlatformUtils.IsVt100Enabled())
             {
@@ -74,7 +146,7 @@ namespace Mjcheetham.PromptToolkit
             return Console.ReadKey(intercept);
         }
 
-        private class SystemConsoleColorCookie : SystemConsoleCookie
+        private class SystemConsoleColorCookie : IDisposable
         {
             private readonly ConsoleColor? _foreground;
             private readonly ConsoleColor? _background;
@@ -85,7 +157,7 @@ namespace Mjcheetham.PromptToolkit
                 _background = background;
             }
 
-            public override void Reset()
+            public void Dispose()
             {
                 if (_foreground.HasValue)
                 {
@@ -99,72 +171,14 @@ namespace Mjcheetham.PromptToolkit
             }
         }
 
-        private abstract class SystemConsoleCookie : IConsoleSnapshot
+        private class SystemConsoleStyleCookie : IDisposable
         {
-            public void Dispose() => Reset();
-
-            public abstract void Reset();
-        }
-
-        private class SystemConsoleStyleCookie : SystemConsoleCookie
-        {
-            public override void Reset()
+            public void Dispose()
             {
                 if (PlatformUtils.IsVt100Enabled())
                 {
                     Console.Write("{0}[0m", ESC);
                 }
-            }
-        }
-
-        private class SystemConsoleCursorCookie : IConsoleCursor
-        {
-            public SystemConsoleCursorCookie(int left, int top)
-            {
-                Left = left;
-                Top = top;
-            }
-
-            public int Top { get; }
-
-            public int Left { get; }
-
-            public void Reset(bool clear)
-            {
-                int currentLeft = Console.CursorLeft;
-                int currentTop = Console.CursorTop;
-
-                if (currentLeft == Left && currentTop == Top)
-                {
-                    return;
-                }
-
-                if (clear)
-                {
-                    // Clear current line
-                    Console.SetCursorPosition(0, currentTop);
-                    Console.Write(new string(' ', currentLeft));
-
-                    // Clear all full lines between
-                    if (currentTop > Top)
-                    {
-                        var blankLine = new string(' ', Console.WindowWidth);
-                        for (int i = currentTop - 1; i > Top; i--)
-                        {
-                            Console.SetCursorPosition(0, i);
-                            Console.Write(blankLine);
-                        }
-                    }
-
-                    // Clear first line to saved left
-                    if (Left < Console.WindowWidth)
-                    {
-                        Console.SetCursorPosition(Left, Top);
-                        Console.Write(new string(' ', Console.WindowWidth - Left));
-                    }
-                }
-
-                Console.SetCursorPosition(Left, Top);
             }
         }
     }

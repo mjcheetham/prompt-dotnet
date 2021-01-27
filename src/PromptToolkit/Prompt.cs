@@ -20,18 +20,24 @@ namespace Mjcheetham.PromptToolkit
 
         private T Ask<T>(string question, T? defaultValue, IAnswerHandler<T> handler) where T : struct
         {
-            IConsoleCursor resultCursor;
-
+            int lineLength = 0;
             using (_console.SetStyle(ConsoleStyle.Bold))
             {
                 using (_console.SetColor(ConsoleColor.Green))
                 {
                     _console.Write("? ");
+                    lineLength += 2;
                 }
 
                 _console.Write("{0} ", question);
-                resultCursor = _console.SaveCursor();
+                lineLength += question.Length + 1;
             }
+
+            _console.WriteLine();
+            _console.MoveCursorUp();
+            _console.CursorLeft = lineLength;
+
+            int fullLineLength = lineLength;
 
             if (defaultValue.HasValue)
             {
@@ -40,9 +46,8 @@ namespace Mjcheetham.PromptToolkit
                 {
                     _console.Write("{0} ", hint);
                 }
+                fullLineLength += hint.Length + 1;
             }
-
-            IConsoleCursor promptCursor = _console.SaveCursor();
 
             T answer;
             while (true)
@@ -60,10 +65,14 @@ namespace Mjcheetham.PromptToolkit
                     break;
                 }
 
-                promptCursor.Reset(clear: true);
+                _console.MoveCursorUp();
+                _console.CursorLeft = fullLineLength;
+                _console.EraseRight();
             }
 
-            resultCursor.Reset(clear: true);
+            _console.MoveCursorUp();
+            _console.CursorLeft = lineLength;
+            _console.EraseRight();
 
             using (_console.SetColor(ConsoleColor.Cyan))
             {
@@ -75,18 +84,24 @@ namespace Mjcheetham.PromptToolkit
 
         private T Ask<T>(string question, T defaultValue, IAnswerHandler<T> handler) where T : class
         {
-            IConsoleCursor resultCursor;
-
+            int lineLength = 0;
             using (_console.SetStyle(ConsoleStyle.Bold))
             {
                 using (_console.SetColor(ConsoleColor.Green))
                 {
                     _console.Write("? ");
+                    lineLength += 2;
                 }
 
                 _console.Write("{0} ", question);
-                resultCursor = _console.SaveCursor();
+                lineLength += question.Length + 1;
             }
+
+            _console.WriteLine();
+            _console.MoveCursorUp();
+            _console.CursorLeft = lineLength;
+
+            int fullLineLength = lineLength;
 
             if (!(defaultValue is null))
             {
@@ -95,24 +110,33 @@ namespace Mjcheetham.PromptToolkit
                 {
                     _console.Write("{0} ", hint);
                 }
-            }
 
-            IConsoleCursor promptCursor = _console.SaveCursor();
+                fullLineLength += hint.Length + 1;
+            }
 
             T answer;
             while (true)
             {
                 string answerStr = _console.ReadLine();
                 bool? result = handler.TryParse(answerStr, out answer);
+                if (result == true)
+                {
+                    break;
+                }
+
                 if (result == true || result is null && !(defaultValue is null))
                 {
                     break;
                 }
 
-                promptCursor.Reset(clear: true);
+                _console.MoveCursorUp();
+                _console.CursorLeft = fullLineLength;
+                _console.EraseRight();
             }
 
-            resultCursor.Reset(clear: true);
+            _console.MoveCursorUp();
+            _console.CursorLeft = lineLength;
+            _console.EraseRight();
 
             using (_console.SetColor(ConsoleColor.Cyan))
             {
@@ -130,8 +154,6 @@ namespace Mjcheetham.PromptToolkit
 
         public T AskOption<T>(string question, T[] options)
         {
-            IConsoleCursor resultCursor;
-
             using (_console.SetStyle(ConsoleStyle.Bold))
             {
                 using (_console.SetColor(ConsoleColor.Green))
@@ -140,7 +162,6 @@ namespace Mjcheetham.PromptToolkit
                 }
 
                 _console.Write("{0} ", question);
-                resultCursor = _console.SaveCursor();
             }
 
             using (_console.SetColor(ConsoleColor.Gray))
@@ -148,65 +169,79 @@ namespace Mjcheetham.PromptToolkit
                 _console.WriteLine("(use arrow keys to select)");
             }
 
-            int optionOffset = _console.CursorTop;
-            foreach (T option in options)
+            for (var i = 0; i < options.Length; i++)
             {
-                _console.WriteLine("   {0}", option.ToString());
+                T option = options[i];
+                if (i > 0)
+                {
+                    _console.WriteLine("   {0}", option.ToString());
+                }
+                else
+                {
+                    using (_console.SetStyle(ConsoleStyle.Bold))
+                    using (_console.SetColor(ConsoleColor.Green))
+                    {
+                        _console.WriteLine(" > {0}", option.ToString());
+                    }
+                }
             }
 
-            IConsoleCursor promptCursor = _console.SaveCursor();
-            int index = -1;
+            _console.MoveCursorUp(options.Length);
+            _console.CursorLeft = 0;
 
-            void UpdateIndex(int newIndex)
-            {
-                if (newIndex == index)
-                {
-                    return;
-                }
-
-                // Erase old index
-                if (index > -1)
-                {
-                    _console.SetCursor(1, optionOffset + index);
-                    _console.Write(' ');
-                }
-
-                // Draw new index
-                _console.SetCursor(1, optionOffset + newIndex);
-                using (_console.SetColor(ConsoleColor.Green))
-                using (_console.SetStyle(ConsoleStyle.Bold))
-                {
-                    _console.Write('>');
-                }
-
-                index = newIndex;
-
-                promptCursor.Reset();
-            }
-
-            UpdateIndex(0);
+            int index = 0;
 
             bool done = false;
             while (!done)
             {
+                int newIndex;
                 ConsoleKeyInfo keyInfo = _console.ReadKey(true);
                 switch (keyInfo.Key)
                 {
                     case ConsoleKey.UpArrow:
-                        UpdateIndex(Math.Max(0, index - 1));
+                        _console.Write("   {0}", options[index]);
+                        newIndex = Math.Max(0, index - 1);
+                        _console.MoveCursorUp(index - newIndex);
+                        _console.CursorLeft = 0;
+                        using (_console.SetStyle(ConsoleStyle.Bold))
+                        using (_console.SetColor(ConsoleColor.Green))
+                        {
+                            _console.Write(" > {0}", options[newIndex]);
+                        }
+                        _console.CursorLeft = 0;
+                        index = newIndex;
                         break;
 
                     case ConsoleKey.DownArrow:
-                        UpdateIndex(Math.Min(options.Length - 1, index + 1));
+                        _console.Write("   {0}", options[index]);
+                        newIndex = Math.Min(options.Length - 1, index + 1);
+                        _console.MoveCursorDown(newIndex - index);
+                        _console.CursorLeft = 0;
+                        using (_console.SetStyle(ConsoleStyle.Bold))
+                        using (_console.SetColor(ConsoleColor.Green))
+                        {
+                            _console.Write(" > {0}", options[newIndex]);
+                        }
+                        _console.CursorLeft = 0;
+                        index = newIndex;
                         break;
 
                     case ConsoleKey.Enter:
                         done = true;
+                        _console.MoveCursorDown(options.Length - index);
                         break;
                 }
             }
 
-            resultCursor.Reset(clear: true);
+            for (int i = 0; i < options.Length; i++)
+            {
+                _console.MoveCursorUp();
+                _console.EraseLine();
+            }
+
+            _console.MoveCursorUp();
+            _console.CursorLeft = question.Length + 3;
+            _console.EraseRight();
 
             using (_console.SetColor(ConsoleColor.Cyan))
             {
@@ -215,7 +250,6 @@ namespace Mjcheetham.PromptToolkit
 
             return options[index];
         }
-
 
         public string AskString(string question, string defaultValue = null) =>
             Ask(question, defaultValue, StringHandler.Instance);

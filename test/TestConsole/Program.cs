@@ -1,4 +1,5 @@
-﻿using Mjcheetham.PromptToolkit;
+﻿using System;
+using Mjcheetham.PromptToolkit;
 
 namespace TestConsole
 {
@@ -6,53 +7,66 @@ namespace TestConsole
     {
         public static void Main(string[] args)
         {
-            var console = new SystemConsole();
-            var prompt = new Prompt(console);
+            var con = new SystemConsole();
+            var prompt = new Prompt(con);
 
-            console.WriteLineAlert("This will test the console cursor APIs...");
-            console.Write("keepme");
-            var c1 = console.SaveCursor();
-            console.WriteLine("eraseme");
-            console.WriteLine("eraseme");
-            console.WriteLine("eraseme");
-            console.Write("eraseme");
-            var c2 = console.SaveCursor();
-            console.WriteLine("keepme");
-            console.WriteLine("keepme");
-            var c3 = console.SaveCursor();
-            console.ReadKey(intercept: true);
-            c2.Reset();
-            console.ReadKey(intercept: true);
-            c1.Reset(clear: true);
-            console.ReadKey(intercept: true);
-            c3.Reset();
-            console.WriteLineInfo("Bye!");
+            SortingAlgorithm algo2 = prompt.AskOption<SortingAlgorithm>("Pick a sorting algorithm");
 
-            console.WriteLineAlert("Please complete the survey...");
+            for (int i = Console.CursorTop; i < Console.WindowHeight; i++)
+            {
+                Console.WriteLine("line {2} [{0},{1}]", Console.CursorLeft, Console.CursorTop, i);
+            }
+
+            Console.WriteLine("one past [{0},{1}]", Console.CursorLeft, Console.CursorTop);
+            Console.WriteLine("two past [{0},{1}]", Console.CursorLeft, Console.CursorTop);
+
+            con.WriteLineAlert("This will test the console cursor APIs...");
+            con.Write("keepme");
+            con.WriteLine("eraseme");
+            con.WriteLine("eraseme");
+            con.WriteLine("eraseme");
+            con.Write("eraseme");
+
+            var c1 = con.GetCursor();
+            con.EraseLeft();
+            con.MoveCursorUp();
+            con.EraseLine();
+            con.MoveCursorUp();
+            con.EraseLine();
+            con.MoveCursorUp();
+            con.CursorLeft = 6;
+            con.EraseLeft();
+            con.SetCursor(c1);
+
+            con.WriteLine("keepme");
+            con.WriteLine("keepme");
+            con.WriteLineInfo("Bye!");
+
+            con.WriteLineAlert("Please complete the survey...");
 
             string name = prompt.AskString("What is your name?");
-            console.WriteLineInfo("Hello, {0}!", name);
+            con.WriteLineInfo("Hello, {0}!", name);
 
             if (prompt.AskBoolean("Do you like cheese?", true))
             {
-                console.WriteLineSuccess("You like cheese!");
+                con.WriteLineSuccess("You like cheese!");
             }
             else
             {
-                console.WriteLineFailure("What is wrong with cheese?!");
+                con.WriteLineFailure("What is wrong with cheese?!");
             }
 
             int age = prompt.AskInteger("How old are you?");
-            console.WriteLineSuccess("You are {0} years old.", age);
+            con.WriteLineSuccess("You are {0} years old.", age);
 
             double height = prompt.AskDouble("How tall are you?");
             string unit = prompt.AskOption("..and what unit was that?", new[] {"metres", "feet"});
-            console.WriteLineSuccess("You are {0} {1} tall.", height, unit);
+            con.WriteLineSuccess("You are {0} {1} tall.", height, unit);
 
             SortingAlgorithm algo = prompt.AskOption<SortingAlgorithm>("Pick a sorting algorithm");
-            console.WriteLineSuccess("You selected {0}.", algo);
+            con.WriteLineSuccess("You selected {0}.", algo);
 
-            console.WriteLineInfo("Thank you for your time, {0}. Good bye!", name);
+            con.WriteLineInfo("Thank you for your time, {0}. Good bye!", name);
         }
 
         private enum SortingAlgorithm
