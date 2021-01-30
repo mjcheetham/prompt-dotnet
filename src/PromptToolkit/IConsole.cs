@@ -26,7 +26,8 @@ namespace Mjcheetham.PromptToolkit
         IDisposable SetColor(ConsoleColor? foregroundColor = null, ConsoleColor? backgroundColor = null);
         IDisposable SetStyle(ConsoleStyle style);
         ConsoleKeyInfo ReadKey(bool intercept);
-        void EraseTo(Cursor cursor);
+        void HideCursor();
+        void ShowCursor();
     }
 
     public readonly struct Cursor

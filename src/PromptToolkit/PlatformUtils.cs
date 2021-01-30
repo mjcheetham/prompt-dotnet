@@ -33,7 +33,7 @@ namespace Mjcheetham.PromptToolkit
 
         public static bool IsVt100Enabled()
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (!IsWindows())
             {
                 return true;
             }
@@ -42,6 +42,11 @@ namespace Mjcheetham.PromptToolkit
             GetConsoleMode(consoleHandle, out ConsoleModes consoleMode);
 
             return (consoleMode & ConsoleModes.ENABLE_VIRTUAL_TERMINAL_PROCESSING) != 0;
+        }
+
+        public static bool IsWindows()
+        {
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         }
 
         public static bool IsMono()

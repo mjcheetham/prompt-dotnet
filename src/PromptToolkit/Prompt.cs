@@ -33,9 +33,11 @@ namespace Mjcheetham.PromptToolkit
                 lineLength += question.Length + 1;
             }
 
+            _console.HideCursor();
             _console.WriteLine();
             _console.MoveCursorUp();
             _console.CursorLeft = lineLength;
+            _console.ShowCursor();
 
             int fullLineLength = lineLength;
 
@@ -52,7 +54,9 @@ namespace Mjcheetham.PromptToolkit
             T answer;
             while (true)
             {
+                _console.ShowCursor();
                 string answerStr = _console.ReadLine();
+                _console.HideCursor();
                 bool? result = handler.TryParse(answerStr, out answer);
                 if (result == true)
                 {
@@ -73,6 +77,7 @@ namespace Mjcheetham.PromptToolkit
             _console.MoveCursorUp();
             _console.CursorLeft = lineLength;
             _console.EraseRight();
+            _console.ShowCursor();
 
             using (_console.SetColor(ConsoleColor.Cyan))
             {
@@ -97,9 +102,11 @@ namespace Mjcheetham.PromptToolkit
                 lineLength += question.Length + 1;
             }
 
+            _console.HideCursor();
             _console.WriteLine();
             _console.MoveCursorUp();
             _console.CursorLeft = lineLength;
+            _console.ShowCursor();
 
             int fullLineLength = lineLength;
 
@@ -117,7 +124,9 @@ namespace Mjcheetham.PromptToolkit
             T answer;
             while (true)
             {
+                _console.ShowCursor();
                 string answerStr = _console.ReadLine();
+                _console.HideCursor();
                 bool? result = handler.TryParse(answerStr, out answer);
                 if (result == true)
                 {
@@ -137,6 +146,7 @@ namespace Mjcheetham.PromptToolkit
             _console.MoveCursorUp();
             _console.CursorLeft = lineLength;
             _console.EraseRight();
+            _console.ShowCursor();
 
             using (_console.SetColor(ConsoleColor.Cyan))
             {
@@ -154,6 +164,8 @@ namespace Mjcheetham.PromptToolkit
 
         public T AskOption<T>(string question, T[] options)
         {
+            _console.HideCursor();
+
             using (_console.SetStyle(ConsoleStyle.Bold))
             {
                 using (_console.SetColor(ConsoleColor.Green))
@@ -247,6 +259,8 @@ namespace Mjcheetham.PromptToolkit
             {
                 _console.WriteLine(options[index]);
             }
+
+            _console.ShowCursor();
 
             return options[index];
         }

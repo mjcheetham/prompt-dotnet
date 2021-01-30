@@ -106,11 +106,6 @@ namespace Mjcheetham.PromptToolkit
             SetCursor(c);
         }
 
-        public void EraseTo(Cursor cursor)
-        {
-            throw new NotImplementedException();
-        }
-
         public IDisposable SetColor(ConsoleColor? foregroundColor, ConsoleColor? backgroundColor)
         {
             ConsoleColor? fg = null;
@@ -144,6 +139,16 @@ namespace Mjcheetham.PromptToolkit
         public ConsoleKeyInfo ReadKey(bool intercept)
         {
             return Console.ReadKey(intercept);
+        }
+
+        public void HideCursor()
+        {
+            Console.CursorVisible = false;
+        }
+
+        public void ShowCursor()
+        {
+            Console.CursorVisible = true;
         }
 
         private class SystemConsoleColorCookie : IDisposable
