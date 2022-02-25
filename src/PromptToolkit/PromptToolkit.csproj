@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <LangVersion>9</LangVersion>
+    <LangVersion>latest</LangVersion>
     <Version>0.2.1-beta</Version>
     <RootNamespace>Mjcheetham.PromptToolkit</RootNamespace>
     <AssemblyName>Mjcheetham.PromptToolkit</AssemblyName>
@@ -10,7 +10,7 @@
     <Title>Prompt.NET</Title>
     <Description>Prompting and question/answer terminal toolkit for .NET.</Description>
     <Authors>Matthew John Cheetham</Authors>
-    <Copyright>Matthew John Cheetham © 2021</Copyright>
+    <Copyright>Matthew John Cheetham © 2022</Copyright>
     <PackageProjectUrl>https://github.com/mjcheetham/prompt-dotnet</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/mjcheetham/prompt-dotnet/blob/main/LICENSE</PackageLicenseUrl>
     <RepositoryUrl>https://github.com/mjcheetham/prompt-dotnet</RepositoryUrl>
@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
