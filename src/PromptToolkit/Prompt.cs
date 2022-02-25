@@ -77,7 +77,7 @@ public class StringAnswerHandler : IAnswerHandler<string>
         errorMessage = null;
         value = str;
 
-        if (IsRequired && string.IsNullOrWhiteSpace(value))
+        if (IsRequired && string.IsNullOrWhiteSpace(str))
         {
             errorMessage = "required";
             return false;
@@ -99,6 +99,56 @@ public class StringAnswerHandler : IAnswerHandler<string>
     }
 }
 
+public class Int32AnswerHandler : IAnswerHandler<int>
+{
+    public bool IsRequired { get; set; }
+
+    public int? Minimum { get; set; }
+
+    public int? Maximum { get; set; }
+
+    public bool TryParse(string str, out int value, out string errorMessage)
+    {
+        errorMessage = null;
+        value = default;
+
+        if (IsRequired && string.IsNullOrWhiteSpace(str))
+        {
+            errorMessage = "required";
+            return false;
+        }
+
+        if (!int.TryParse(str, out value))
+        {
+            errorMessage = "not an integer";
+            return false;
+        }
+
+        bool validMin = !Minimum.HasValue || value >= Minimum;
+        bool validMax = !Maximum.HasValue || value <= Maximum;
+
+        if (!validMin || !validMax)
+        {
+            if (Maximum.HasValue && !Minimum.HasValue)
+            {
+                errorMessage = $"must be less than {Maximum}";
+            }
+            else if (!Maximum.HasValue)
+            {
+                errorMessage = $"must be greater than {Minimum}";
+            }
+            else
+            {
+                errorMessage = $"must be between {Minimum} and {Maximum}";
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+}
+
 public static class PromptExtensions
 {
     public static string AskString(this IPrompt prompt,
@@ -110,6 +160,19 @@ public static class PromptExtensions
                 IsRequired = isRequired,
                 MinimumLength = minLength,
                 MaximumLength = maxLength
+            }
+        );
+    }
+
+    public static int AskInt32(this IPrompt prompt,
+        string question, bool isRequired = false, int? min = null, int? max = null)
+    {
+        return prompt.Ask(question,
+            new Int32AnswerHandler
+            {
+                IsRequired = isRequired,
+                Minimum = min,
+                Maximum = max
             }
         );
     }

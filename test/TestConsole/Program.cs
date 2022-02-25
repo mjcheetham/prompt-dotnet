@@ -15,6 +15,9 @@ namespace TestConsole
             string name = prompt.AskString("What is your name?", true, 5, 10);
             con.WriteLineInfo("Your name is {0}", name);
 
+            int age = prompt.AskInt32("What is your age?", true, 5, 75);
+            con.WriteLineInfo("Your age is {0}", age);
+
             con.WriteLineFailure("Failure");
             con.WriteLineSuccess("All good!");
 
