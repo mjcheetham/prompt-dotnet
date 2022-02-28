@@ -39,8 +39,11 @@ public class Prompt : IPrompt
             {
                 if (failed)
                 {
-                    _console.RestoreCursor();
-                    _console.EraseLine(EraseLineMode.LineEnd);
+                    using (_console.SetCursorVisible(false))
+                    {
+                        _console.RestoreCursor();
+                        _console.EraseLine(EraseLineMode.LineEnd);
+                    }
                     _console.WriteLine(str);
                 }
 
@@ -48,8 +51,11 @@ public class Prompt : IPrompt
             }
 
             failed = true;
-            _console.RestoreCursor();
-            _console.EraseLine(EraseLineMode.LineEnd);
+            using (_console.SetCursorVisible(false))
+            {
+                _console.RestoreCursor();
+                _console.EraseLine(EraseLineMode.LineEnd);
+            }
 
             using (_console.SetStyle(ConsoleColor.Red))
             {

@@ -4,6 +4,16 @@ namespace Mjcheetham.PromptToolkit
 {
     public static class ConsoleExtensions
     {
+        public static IDisposable SetCursorVisible(this IConsole console, bool visible)
+        {
+            if (!visible)
+            {
+                console.HideCursor();
+            }
+
+            return new CursorHiddenDisposable(console, !visible);
+        }
+
         public static IDisposable SetStyle(this IConsole console, ConsoleColor foregroundColor, ConsoleStyle style)
         {
             return console.SetStyle(foregroundColor, null, style);
@@ -57,6 +67,26 @@ namespace Mjcheetham.PromptToolkit
             }
 
             console.WriteLine();
+        }
+
+        private class CursorHiddenDisposable : IDisposable
+        {
+            private readonly IConsole _console;
+            private readonly bool _makeVisible;
+
+            public CursorHiddenDisposable(IConsole console, bool makeVisible)
+            {
+                _console = console;
+                _makeVisible = makeVisible;
+            }
+
+            public void Dispose()
+            {
+                if (_makeVisible)
+                {
+                    _console.ShowCursor();
+                }
+            }
         }
     }
 }
