@@ -1,10 +1,15 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Mjcheetham.PromptToolkit;
 
 public interface IPrompt
 {
     T Ask<T>(string question, IAnswerHandler<T> handler);
+
+    T AskOption<T>(string question, IEnumerable<T> options, Func<T, string> displayNameFunc);
 }
 
 public class Prompt : IPrompt
@@ -62,6 +67,133 @@ public class Prompt : IPrompt
                 _console.Write("({0}) ", errorMessage);
             }
         }
+    }
+
+    public T AskOption<T>(string question, IEnumerable<T> options, Func<T, string> displayNameFunc)
+    {
+        using (_console.SetStyle(ConsoleColor.Green, ConsoleStyle.Bold))
+        {
+            _console.Write("? ");
+        }
+
+        using (_console.SetStyle(ConsoleStyle.Bold))
+        {
+            _console.Write("{0} ", question);
+        }
+
+        _console.SaveCursor();
+
+        using (_console.SetStyle(ConsoleColor.Cyan))
+        {
+            _console.WriteLine("[use arrow keys to move]");
+        }
+
+        _console.HideCursor();
+
+        T[] menuOptions = options.ToArray();
+        string[] menuNames = menuOptions.Select(displayNameFunc).ToArray();
+
+        void PrintItem(int index, bool selected)
+        {
+            if (selected)
+            {
+                using (_console.SetStyle(ConsoleColor.Cyan))
+                {
+                    _console.Write("> {0}", menuNames[index]);
+                }
+            }
+            else
+            {
+                _console.Write("  {0}", menuNames[index]);
+            }
+        }
+
+        // Initial selection is the first item
+        int selectedIndex = 0;
+
+        // Render all menu items
+        for (int i = 0; i < menuOptions.Length; i++)
+        {
+            PrintItem(i, i == selectedIndex);
+            _console.WriteLine();
+        }
+
+        // Move cursor to initial selection
+        _console.MoveCursorUp(menuOptions.Length - selectedIndex);
+
+        void MoveUp()
+        {
+            int newIndex = Math.Max(0, selectedIndex - 1);
+            if (newIndex != selectedIndex)
+            {
+                // Re-print the currently selected item
+                _console.MoveCursorAbsoluteX(0);
+                PrintItem(selectedIndex, false);
+
+                // Update selection index
+                selectedIndex = newIndex;
+
+                // Move up and print the newly selected item
+                _console.MoveCursorUp();
+                _console.MoveCursorAbsoluteX(0);
+                PrintItem(selectedIndex, true);
+            }
+        }
+
+        void MoveDown()
+        {
+            int newIndex = Math.Min(menuOptions.Length - 1, selectedIndex + 1);
+            if (newIndex != selectedIndex)
+            {
+                // Re-print the currently selected item
+                _console.MoveCursorAbsoluteX(0);
+                PrintItem(selectedIndex, false);
+
+                // Update selection index
+                selectedIndex = newIndex;
+
+                // Move down and print selection symbol
+                _console.MoveCursorDown();
+                _console.MoveCursorAbsoluteX(0);
+                PrintItem(selectedIndex, true);
+            }
+        }
+
+        bool done = false;
+        while (!done)
+        {
+            ConsoleKeyInfo key = _console.ReadKey();
+            switch (key.Key)
+            {
+                case ConsoleKey.UpArrow:
+                    MoveUp();
+                    break;
+                case ConsoleKey.DownArrow:
+                    MoveDown();
+                    break;
+                case ConsoleKey.Enter:
+                    done = true;
+                    break;
+                default:
+                    continue;
+            }
+        }
+
+        _console.MoveCursorDown(menuOptions.Length - selectedIndex - 1);
+
+        for (int i = 0; i < selectedIndex - 1; i++)
+        {
+            _console.EraseLine(EraseLineMode.All);
+            _console.MoveCursorUp();
+        }
+
+        _console.RestoreCursor();
+        _console.EraseLine(EraseLineMode.LineEnd);
+        _console.WriteLine(menuNames[selectedIndex]);
+
+        _console.ShowCursor();
+
+        return menuOptions[selectedIndex];
     }
 }
 
@@ -181,5 +313,11 @@ public static class PromptExtensions
                 Maximum = max
             }
         );
+    }
+
+    public static T AskOption<T>(this IPrompt prompt,
+        string question, IEnumerable<T> options)
+    {
+        return prompt.AskOption(question, options, x => x.ToString());
     }
 }

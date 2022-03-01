@@ -10,6 +10,7 @@ public interface IConsole
     void WriteLine(string message, params object[] args);
     void WriteLine();
     string ReadLine();
+    ConsoleKeyInfo ReadKey();
 
     void ShowCursor();
     void HideCursor();

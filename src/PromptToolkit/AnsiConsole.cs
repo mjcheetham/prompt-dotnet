@@ -60,6 +60,12 @@ public class AnsiConsole : IConsole
         return _stdin.ReadLine();
     }
 
+    public ConsoleKeyInfo ReadKey()
+    {
+        // TODO: implement in ANSI escape codes???
+        return Console.ReadKey(true);
+    }
+
     public void ShowCursor()
     {
         _stdout.Write(CSI + "?25h");

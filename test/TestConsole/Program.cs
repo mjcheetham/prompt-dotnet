@@ -12,11 +12,21 @@ namespace TestConsole
             IConsole con = new AnsiConsole(stdin, stdout);
             var prompt = new Prompt(con);
 
-            string name = prompt.AskString("What is your name?", true, 5, 10);
-            con.WriteLineInfo("Your name is {0}", name);
+            //string name = prompt.AskString("What is your name?", true, 5, 10);
+            //con.WriteLineInfo("Your name is {0}", name);
 
-            int age = prompt.AskInt32("What is your age?", true, 5, 75);
-            con.WriteLineInfo("Your age is {0}", age);
+            //int age = prompt.AskInt32("What is your age?", true, 5, 75);
+            //con.WriteLineInfo("Your age is {0}", age);
+
+            ConsoleColor[] colors =
+            {
+                ConsoleColor.Red,
+                ConsoleColor.Green,
+                ConsoleColor.Blue,
+            };
+            ConsoleColor color = prompt.AskOption("Select a colour:", colors);
+
+            con.WriteLineInfo("You selected {0}", color.ToString());
 
             con.WriteLineFailure("Failure");
             con.WriteLineSuccess("All good!");
